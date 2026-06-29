@@ -1,1 +1,185 @@
-<h1> julio machuca </h1>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FACTUM | Diseño y Construcción</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header id="main-header">
+        <div class="container nav-container">
+            <a href="#" class="logo" data-nav="home">FACTUM<span>.</span></a>
+            <nav>
+                <ul>
+                    <li><a href="#" class="nav-link active" data-target="home">Inicio</a></li>
+                    <li><a href="#" class="nav-link" data-target="about">Nosotros</a></li>
+                    <li><a href="#" class="nav-link" data-target="portfolio">Portafolio</a></li>
+                    <li><a href="#" class="nav-link" data-target="contact">Contacto</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main id="home" class="page-view active">
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h1>Arquitectura y Alta Ingeniería que Trasciende</h1>
+                    <p>En Factum transformamos ideas vanguardistas en estructuras sólidas, combinando diseño de autor y procesos de construcción de máxima precisión técnica.</p>
+                    <button class="btn btn-primary" id="hero-cta">Ver Portafolio</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="home-sections container">
+            <div class="section-title">
+                <h2>Nuestros Servicios</h2>
+            </div>
+            <div class="grid-services">
+                <div class="service-card">
+                    <h3>01 / Diseño Arquitectónico</h3>
+                    <p>Conceptualización y desarrollo de espacios modernos, funcionales y sostenibles con fuerte identidad corporativa y residencial.</p>
+                </div>
+                <div class="service-card">
+                    <h3>02 / Construcción e Ingeniería</h3>
+                    <p>Ejecución de obras con rigurosos controles de calidad estructural, optimización de recursos y seguridad de vanguardia.</p>
+                </div>
+                <div class="service-card">
+                    <h3>03 / Modelado BIM Avanzado</h3>
+                    <p>Supervisión digital inteligente en entornos comunes de datos para mitigar imprevistos, controlando costos y plazos.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <section id="about" class="page-view">
+        <div class="container">
+            <div class="about-wrapper">
+                <div class="about-text">
+                    <h2>Diseñamos el Futuro, Construimos Realidades</h2>
+                    <p>Factum nació con la firme convicción de liderar el mercado premium de la construcción y la arquitectura técnica, uniendo diseño y rigurosidad constructiva.</p>
+                    <p>Cada obra es concebida con meticulosidad estructural y estética atemporal, aplicando metodologías tecnológicas que garantizan una entrega transparente a nuestros clientes.</p>
+                    
+                    <div class="pillars">
+                        <div class="pillar-item">
+                            <h4>Tecnología Aplicada</h4>
+                            <p>Uso nativo de gemelos digitales y control automatizado en frentes de obra.</p>
+                        </div>
+                        <div class="pillar-item">
+                            <h4>Garantía Factum</h4>
+                            <p>Control exacto de presupuestos y materiales certificados bajo norma.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-img">
+                    <img src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=800&q=80" alt="Estudio Factum">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="portfolio" class="page-view">
+        <div class="container">
+            <div class="section-title">
+                <h2>Proyectos Destacados</h2>
+            </div>
+
+            <div class="filter-container">
+                <button class="filter-btn active" data-filter="all">Todos</button>
+                <button class="filter-btn" data-filter="residential">Residencial</button>
+                <button class="filter-btn" data-filter="commercial">Comercial</button>
+                <button class="filter-btn" data-filter="infrastructure">Infraestructura</button>
+            </div>
+
+            <div class="grid-portfolio">
+                <div class="portfolio-item" data-category="residential">
+                    <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80" alt="Casa Aura">
+                    <div class="portfolio-overlay">
+                        <h3>Casa Aura</h3>
+                        <p>Residencial / 2025</p>
+                    </div>
+                </div>
+                <div class="portfolio-item" data-category="commercial">
+                    <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=80" alt="Torre Prisma">
+                    <div class="portfolio-overlay">
+                        <h3>Torre Prisma</h3>
+                        <p>Comercial / 2024</p>
+                    </div>
+                </div>
+                <div class="portfolio-item" data-category="infrastructure">
+                    <img src="https://images.unsplash.com/photo-1545558014-868dfc4dd0b9?auto=format&fit=crop&w=600&q=80" alt="Eje Vial">
+                    <div class="portfolio-overlay">
+                        <h3>Supervisión Vial Eje Norte</h3>
+                        <p>Infraestructura / 2026</p>
+                    </div>
+                </div>
+                <div class="portfolio-item" data-category="residential">
+                    <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80" alt="Departamentos Terra">
+                    <div class="portfolio-overlay">
+                        <h3>Departamentos Terra</h3>
+                        <p>Residencial / 2025</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="page-view">
+        <div class="container">
+            <div class="section-title">
+                <h2>Iniciar un Proyecto</h2>
+            </div>
+            
+            <div class="contact-wrapper">
+                <div class="contact-info">
+                    <h3>¿Tienes una idea en mente? Hagámosla realidad.</h3>
+                    <p class="contact-desc">Ponte en contacto con nuestra división de ingeniería y arquitectura para agendar una consultoría técnica.</p>
+                    
+                    <div class="contact-details">
+                        <div class="contact-detail-item">
+                            <strong>Oficina Principal</strong>
+                            <p>Av. Arquitectura Moderna 1024, San Isidro</p>
+                        </div>
+                        <div class="contact-detail-item">
+                            <strong>Teléfono Directo</strong>
+                            <p>+51 (1) 455-8920</p>
+                        </div>
+                        <div class="contact-detail-item">
+                            <strong>Correo Corporativo</strong>
+                            <p>contacto@factum.pe</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-form">
+                    <h3>Formulario de Cotización</h3>
+                    <form id="factumForm">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Nombre Completo" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" class="form-control" placeholder="Correo Electrónico" required>
+                        </div>
+                        <div class="form-group">
+                            <textarea class="form-control" placeholder="Describe brevemente los requerimientos de la obra..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Enviar Solicitud</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-logo">FACTUM<span>.</span></div>
+            <div class="copyright">&copy; 2026 FACTUM. Todos los derechos reservados. Desarrollado bajo estándares W3C.</div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

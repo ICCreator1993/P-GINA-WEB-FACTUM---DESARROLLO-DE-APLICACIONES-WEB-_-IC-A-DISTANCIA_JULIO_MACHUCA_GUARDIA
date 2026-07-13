@@ -18,6 +18,7 @@
                     <li><a href="#" class="nav-link" data-target="about">Nosotros</a></li>
                     <li><a href="#" class="nav-link" data-target="portfolio">Portafolio</a></li>
                     <li><a href="#" class="nav-link" data-target="contact">Contacto</a></li>
+                    <li><a href="#" class="nav-link nav-admin-btn" data-target="admin">Admin CRUD</a></li>
                 </ul>
             </nav>
         </div>
@@ -94,35 +95,8 @@
                 <button class="filter-btn" data-filter="infrastructure">Infraestructura</button>
             </div>
 
-            <div class="grid-portfolio">
-                <div class="portfolio-item" data-category="residential">
-                    <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80" alt="Casa Aura">
-                    <div class="portfolio-overlay">
-                        <h3>Casa Aura</h3>
-                        <p>Residencial / 2025</p>
-                    </div>
-                </div>
-                <div class="portfolio-item" data-category="commercial">
-                    <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=80" alt="Torre Prisma">
-                    <div class="portfolio-overlay">
-                        <h3>Torre Prisma</h3>
-                        <p>Comercial / 2024</p>
-                    </div>
-                </div>
-                <div class="portfolio-item" data-category="infrastructure">
-                    <img src="https://images.unsplash.com/photo-1545558014-868dfc4dd0b9?auto=format&fit=crop&w=600&q=80" alt="Eje Vial">
-                    <div class="portfolio-overlay">
-                        <h3>Supervisión Vial Eje Norte</h3>
-                        <p>Infraestructura / 2026</p>
-                    </div>
-                </div>
-                <div class="portfolio-item" data-category="residential">
-                    <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80" alt="Departamentos Terra">
-                    <div class="portfolio-overlay">
-                        <h3>Departamentos Terra</h3>
-                        <p>Residencial / 2025</p>
-                    </div>
-                </div>
+            <div class="grid-portfolio" id="public-portfolio-grid">
+                <!-- Se renderiza dinámicamente desde el script para interactuar con el CRUD -->
             </div>
         </div>
     </section>
@@ -172,6 +146,68 @@
             </div>
         </div>
     </section>
+
+    <!-- ENTORNO ADMINISTRATIVO (CRUD) -->
+    <section id="admin" class="page-view">
+        <div class="container">
+            <div class="section-title">
+                <h2>Panel Administrativo - Gestión de Proyectos</h2>
+            </div>
+
+            <div class="admin-actions">
+                <button class="btn btn-primary" id="btn-open-modal">Nuevo Proyecto</button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Imagen</th>
+                            <th>Título</th>
+                            <th>Categoría</th>
+                            <th>Año</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="crud-table-body">
+                        <!-- Filas cargadas de forma asíncrona -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODAL PARA NUEVO / EDITAR -->
+    <div class="modal" id="projectModal">
+        <div class="modal-content">
+            <span class="close-modal" id="btn-close-modal">&times;</span>
+            <h3 id="modal-title">Registrar Proyecto</h3>
+            <form id="crudForm">
+                <input type="hidden" id="project-id">
+                <div class="form-group">
+                    <label for="project-title">Título del Proyecto</label>
+                    <input type="text" id="project-title" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="project-category">Categoría</label>
+                    <select id="project-category" class="form-control" required>
+                        <option value="residential">Residencial</option>
+                        <option value="commercial">Comercial</option>
+                        <option value="infrastructure">Infraestructura</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="project-year">Año de Ejecución</label>
+                    <input type="number" id="project-year" class="form-control" required min="2000" max="2030">
+                </div>
+                <div class="form-group">
+                    <label for="project-img">URL de la Imagen</label>
+                    <input type="url" id="project-img" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block" id="btn-submit-form">Guardar Cambios</button>
+            </form>
+        </div>
+    </div>
 
     <footer>
         <div class="container footer-content">

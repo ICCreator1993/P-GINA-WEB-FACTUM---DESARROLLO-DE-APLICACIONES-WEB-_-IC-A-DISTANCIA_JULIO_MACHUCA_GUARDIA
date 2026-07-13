@@ -1,246 +1,250 @@
-:root {
-    --bg-primary: #F8F9FA;
-    --bg-dark: #121212;
-    --bg-card: #FFFFFF;
-    --text-main: #1A1A1A;
-    --text-muted: #666666;
-    --text-light: #F8F9FA;
-    --accent: #D4AF37; /* Oro Mate Premium */
-    --transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-    --font-title: 'Montserrat', 'Helvetica Neue', sans-serif;
-    --font-body: 'Inter', 'Segoe UI', sans-serif;
-}
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // Selectores del DOM
+    const links = document.querySelectorAll('.nav-link');
+    const pages = document.querySelectorAll('.page-view');
+    const header = document.getElementById('main-header');
+    const logoLink = document.querySelector('.logo');
+    const heroCta = document.getElementById('hero-cta');
+    const contactForm = document.getElementById('factumForm');
+    
+    // Selectores del CRUD y Modal
+    const crudTableBody = document.getElementById('crud-table-body');
+    const publicPortfolioGrid = document.getElementById('public-portfolio-grid');
+    const projectModal = document.getElementById('projectModal');
+    const crudForm = document.getElementById('crudForm');
+    const modalTitle = document.getElementById('modal-title');
+    
+    const btnOpenModal = document.getElementById('btn-open-modal');
+    const btnCloseModal = document.getElementById('btn-close-modal');
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+    // Datos por defecto (Seed inicial en LocalStorage)
+    const defaultProjects = [
+        { id: "1", title: "Casa Aura", category: "residential", year: "2025", img: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80" },
+        { id: "2", title: "Torre Prisma", category: "commercial", year: "2024", img: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=80" },
+        { id: "3", title: "Supervisión Vial Eje Norte", category: "infrastructure", year: "2026", img: "https://images.unsplash.com/photo-1545558014-868dfc4dd0b9?auto=format&fit=crop&w=600&q=80" },
+        { id: "4", title: "Departamentos Terra", category: "residential", year: "2025", img: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80" }
+    ];
 
-body {
-    font-family: var(--font-body);
-    background-color: var(--bg-primary);
-    color: var(--text-main);
-    line-height: 1.6;
-    overflow-x: hidden;
-}
+    if (!localStorage.getItem('factum_projects')) {
+        localStorage.setItem('factum_projects', JSON.stringify(defaultProjects));
+    }
 
-h1, h2, h3, h4 {
-    font-family: var(--font-title);
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    text-transform: uppercase;
-}
+    // --- 1. SISTEMA DE NAVEGACIÓN ---
+    function navigateTo(targetId) {
+        links.forEach(link => {
+            if (link.getAttribute('data-target') === targetId) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
 
-a {
-    text-decoration: none;
-    color: inherit;
-    transition: var(--transition);
-}
+        pages.forEach(page => {
+            if (page.id === targetId) {
+                page.classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                page.classList.remove('active');
+            }
+        });
+    }
 
-.container {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 24px;
-}
+    links.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigateTo(link.getAttribute('data-target'));
+        });
+    });
 
+    if(logoLink) logoLink.addEventListener('click', (e) => { e.preventDefault(); navigateTo('home'); });
+    if(heroCta) heroCta.addEventListener('click', () => navigateTo('portfolio'));
 
-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1000;
-    transition: var(--transition);
-    padding: 24px 0;
-}
+    window.addEventListener('scroll', () => {
+        const activePage = document.querySelector('.page-view.active');
+        if (activePage && activePage.id === 'home') {
+            if (window.scrollY > 50) header.classList.add('scrolled');
+            else header.classList.remove('scrolled');
+        }
+    });
 
-header.scrolled {
-    background-color: rgba(18, 18, 18, 0.95);
-    backdrop-filter: blur(10px);
-    padding: 16px 0;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-}
+    // --- 2. API MOCK SIMULADA (ASÍNCRONA) ---
+    const projectAPI = {
+        getAll: async () => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve(JSON.parse(localStorage.getItem('factum_projects')));
+                }, 400); // Retraso simulando red de datos
+            });
+        },
+        save: async (project) => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    let projects = JSON.parse(localStorage.getItem('factum_projects'));
+                    if (project.id) {
+                        // Editar existente
+                        projects = projects.map(p => p.id === project.id ? project : p);
+                    } else {
+                        // Nuevo registro
+                        project.id = Date.now().toString();
+                        projects.push(project);
+                    }
+                    localStorage.setItem('factum_projects', JSON.stringify(projects));
+                    resolve({ success: true });
+                }, 400);
+            });
+        },
+        delete: async (id) => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    let projects = JSON.parse(localStorage.getItem('factum_projects'));
+                    projects = projects.filter(p => p.id !== id);
+                    localStorage.setItem('factum_projects', JSON.stringify(projects));
+                    resolve({ success: true });
+                }, 300);
+            });
+        }
+    };
 
-header.scrolled .logo { color: var(--text-light); }
-header.scrolled nav a { color: #BBBBBB; }
-header.scrolled nav a:hover, header.scrolled nav a.active { color: var(--accent); }
+    // --- 3. LOGICA OPERATIVA DEL CRUD ---
+    async function loadData() {
+        const projects = await projectAPI.getAll();
+        renderAdminTable(projects);
+        renderPublicPortfolio(projects);
+    }
 
-.nav-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+    function renderAdminTable(projects) {
+        crudTableBody.innerHTML = '';
+        projects.forEach(p => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><img src="${p.img}" alt="${p.title}"></td>
+                <td><strong>${p.title}</strong></td>
+                <td><span class="category-tag">${p.category}</span></td>
+                <td>${p.year}</td>
+                <td>
+                    <button class="btn btn-edit" data-id="${p.id}">Editar</button>
+                    <button class="btn btn-danger" data-id="${p.id}">Eliminar</button>
+                </td>
+            `;
+            crudTableBody.appendChild(tr);
+        });
+        initTableButtons();
+    }
 
-.logo {
-    font-family: var(--font-title);
-    font-size: 24px;
-    font-weight: 900;
-    letter-spacing: 4px;
-    color: var(--text-main);
-    cursor: pointer;
-}
+    function renderPublicPortfolio(projects) {
+        publicPortfolioGrid.innerHTML = '';
+        projects.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'portfolio-item';
+            div.setAttribute('data-category', item.category);
+            div.innerHTML = `
+                <img src="${item.img}" alt="${item.title}">
+                <div class="portfolio-overlay">
+                    <h3>${item.title}</h3>
+                    <p>${item.category} / ${item.year}</p>
+                </div>
+            `;
+            publicPortfolioGrid.appendChild(div);
+        });
+        applyFilterLogic();
+    }
 
-.logo span { color: var(--accent); }
-nav ul { display: flex; gap: 32px; list-style: none; }
+    function initTableButtons() {
+        document.querySelectorAll('.btn-edit').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const id = btn.getAttribute('data-id');
+                const projects = await projectAPI.getAll();
+                const project = projects.find(p => p.id === id);
+                
+                if (project) {
+                    document.getElementById('project-id').value = project.id;
+                    document.getElementById('project-title').value = project.title;
+                    document.getElementById('project-category').value = project.category;
+                    document.getElementById('project-year').value = project.year;
+                    document.getElementById('project-img').value = project.img;
+                    
+                    modalTitle.textContent = "Editar Proyecto";
+                    projectModal.classList.add('active');
+                }
+            });
+        });
 
-nav a {
-    font-size: 13px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--text-main);
-    padding: 8px 0;
-    position: relative;
-}
+        document.querySelectorAll('.btn-danger').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const id = btn.getAttribute('data-id');
+                if (confirm('¿Está seguro de eliminar este proyecto de los registros de FACTUM?')) {
+                    await projectAPI.delete(id);
+                    loadData();
+                }
+            });
+        });
+    }
 
-nav a::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background-color: var(--accent);
-    transition: var(--transition);
-}
+    // Modal Events
+    btnOpenModal.addEventListener('click', () => {
+        crudForm.reset();
+        document.getElementById('project-id').value = '';
+        modalTitle.textContent = "Registrar Proyecto";
+        projectModal.classList.add('active');
+    });
 
-nav a:hover::after, nav a.active::after { width: 100%; }
-nav a.active { color: var(--accent); }
+    btnCloseModal.addEventListener('click', () => projectModal.classList.remove('active'));
 
+    crudForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const project = {
+            id: document.getElementById('project-id').value || null,
+            title: document.getElementById('project-title').value,
+            category: document.getElementById('project-category').value,
+            year: document.getElementById('project-year').value,
+            img: document.getElementById('project-img').value
+        };
 
-.page-view {
-    display: none;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.5s ease, transform 0.5s ease;
-    padding-top: 100px;
-    min-height: 100vh;
-}
+        await projectAPI.save(project);
+        projectModal.classList.remove('active');
+        loadData();
+    });
 
-.page-view.active {
-    display: block;
-    opacity: 1;
-    transform: translateY(0);
-}
+    // Filtros de Portafolio Público
+    function applyFilterLogic() {
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const portfolioItems = document.querySelectorAll('.portfolio-item');
 
-.btn {
-    display: inline-block;
-    padding: 14px 28px;
-    font-family: var(--font-title);
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    border: 2px solid var(--text-main);
-    background: transparent;
-    cursor: pointer;
-    transition: var(--transition);
-}
+        filterButtons.forEach(btn => {
+            btn.replaceWith(btn.cloneNode(true)); // Limpiar listeners previos
+        });
 
-.btn-primary { background-color: var(--text-main); color: var(--text-light); }
-.btn-primary:hover {
-    background-color: var(--accent);
-    border-color: var(--accent);
-    color: var(--text-light);
-}
-.btn-block { width: 100%; }
+        const newFilterButtons = document.querySelectorAll('.filter-btn');
+        newFilterButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                newFilterButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
 
-.section-title { text-align: center; margin-bottom: 48px; }
-.section-title h2 { font-size: 32px; }
-.section-title::after {
-    content: ''; display: block; width: 50px; height: 3px;
-    background-color: var(--accent); margin: 16px auto 0;
-}
+                const filterValue = btn.getAttribute('data-filter');
 
-/* --- INICIO (HOME HERO) --- */
-#home { padding-top: 0; }
-.hero {
-    height: 100vh;
-    background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
-    display: flex;
-    align-items: center;
-    color: var(--text-light);
-}
-.hero-content { max-width: 700px; }
-.hero h1 { font-size: 54px; line-height: 1.1; margin-bottom: 24px; }
-.hero p { font-size: 18px; margin-bottom: 32px; color: #CCCCCC; }
+                portfolioItems.forEach(item => {
+                    if (filterValue === 'all' || item.getAttribute('data-category') === filterValue) {
+                        item.style.display = 'block';
+                        setTimeout(() => { item.style.opacity = '1'; item.style.transform = 'scale(1)'; }, 10);
+                    } else {
+                        item.style.opacity = '0';
+                        item.style.transform = 'scale(0.8)';
+                        setTimeout(() => { item.style.display = 'none'; }, 400);
+                    }
+                });
+            });
+        });
+    }
 
-.home-sections { padding: 80px 0; }
-.grid-services { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; }
-.service-card {
-    background-color: var(--bg-card); padding: 40px;
-    border-top: 4px solid var(--text-main);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.03); transition: var(--transition);
-}
-.service-card:hover {
-    transform: translateY(-10px); border-top-color: var(--accent);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
-}
-.service-card h3 { margin-bottom: 16px; font-size: 18px; }
+    if (contactForm) {
+        contactForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            alert('¡Solicitud registrada con éxito! El equipo técnico de FACTUM se pondrá en contacto contigo.');
+            contactForm.reset();
+        });
+    }
 
-/* --- NOSOTROS --- */
-.about-wrapper { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 64px; align-items: center; padding: 40px 0; }
-.about-text h2 { font-size: 36px; margin-bottom: 24px; }
-.about-text p { color: var(--text-muted); margin-bottom: 20px; }
-.about-img img { box-shadow: 20px 20px 0px var(--accent); width: 100%; object-fit: cover; }
-.pillars { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-top: 48px; }
-.pillar-item { border-left: 2px solid var(--accent); padding-left: 16px; }
-.pillar-item h4 { font-size: 14px; margin-bottom: 8px; }
-
-/* --- PORTAFOLIO CON OVERLAYS --- */
-.filter-container { display: flex; justify-content: center; gap: 16px; margin-bottom: 40px; }
-.filter-btn {
-    background: transparent; border: none; font-family: var(--font-title);
-    font-size: 12px; font-weight: 600; text-transform: uppercase;
-    letter-spacing: 1px; padding: 8px 16px; cursor: pointer;
-    transition: var(--transition); border-bottom: 2px solid transparent;
-}
-.filter-btn.active, .filter-btn:hover { color: var(--accent); border-bottom-color: var(--accent); }
-.grid-portfolio { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 24px; }
-.portfolio-item { position: relative; overflow: hidden; background-color: var(--bg-dark); }
-.portfolio-item img { transition: var(--transition); width: 100%; height: 400px; object-fit: cover; }
-.portfolio-overlay {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(18, 18, 18, 0.85); display: flex; flex-direction: column;
-    justify-content: center; align-items: center; opacity: 0;
-    transition: var(--transition); padding: 24px; color: var(--text-light);
-}
-.portfolio-item:hover img { transform: scale(1.05); }
-.portfolio-item:hover .portfolio-overlay { opacity: 1; }
-.portfolio-overlay h3 { font-size: 20px; margin-bottom: 8px; transform: translateY(20px); transition: var(--transition); }
-.portfolio-overlay p { font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: var(--accent); transform: translateY(20px); transition: var(--transition); transition-delay: 0.1s; }
-.portfolio-item:hover .portfolio-overlay h3, .portfolio-item:hover .portfolio-overlay p { transform: translateY(0); }
-
-/* --- CONTACTO --- */
-.contact-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; padding: 40px 0; }
-.contact-info h3, .contact-form h3 { font-size: 20px; margin-bottom: 24px; }
-.contact-desc { color: var(--text-muted); margin-bottom: 32px; }
-.contact-details { margin-bottom: 40px; }
-.contact-detail-item { margin-bottom: 20px; }
-.contact-detail-item strong { display: block; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; color: var(--accent); }
-.form-group { margin-bottom: 24px; }
-.form-control {
-    width: 100%; padding: 16px; border: 1px solid #DDDDDD;
-    background-color: var(--bg-card); font-family: var(--font-body);
-    font-size: 14px; transition: var(--transition);
-}
-.form-control:focus { outline: none; border-color: var(--accent); }
-textarea.form-control { height: 150px; resize: none; }
-
-footer { background-color: var(--bg-dark); color: var(--text-light); padding: 60px 0; margin-top: 80px; }
-.footer-content { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #222222; padding-top: 40px; }
-.footer-logo { font-family: var(--font-title); font-weight: 900; letter-spacing: 3px; }
-.footer-logo span { color: var(--accent); }
-.copyright { color: #666666; font-size: 13px; }
-
-@media (max-width: 768px) {
-    header { background-color: var(--bg-dark); padding: 16px 0; }
-    .logo { color: var(--text-light); }
-    nav a { color: #BBBBBB; }
-    nav ul { gap: 16px; }
-    .hero h1 { font-size: 36px; }
-    .about-wrapper, .contact-wrapper { grid-template-columns: 1fr; gap: 40px; }
-    .filter-container { flex-wrap: wrap; }
-}
+    // Inicializar carga de datos
+    loadData();
+});

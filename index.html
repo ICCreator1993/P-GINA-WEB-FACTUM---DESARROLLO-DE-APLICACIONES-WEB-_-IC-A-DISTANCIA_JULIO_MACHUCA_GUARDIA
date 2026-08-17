@@ -1,221 +1,104 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FACTUM | Diseño y Construcción</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FACTUM | Arquitectura e Ingeniería</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <header id="main-header">
-        <div class="container nav-container">
-            <a href="#" class="logo" data-nav="home">FACTUM<span>.</span></a>
-            <nav>
-                <ul>
-                    <li><a href="#" class="nav-link active" data-target="home">Inicio</a></li>
-                    <li><a href="#" class="nav-link" data-target="about">Nosotros</a></li>
-                    <li><a href="#" class="nav-link" data-target="portfolio">Portafolio</a></li>
-                    <li><a href="#" class="nav-link" data-target="contact">Contacto</a></li>
-                    <li><a href="#" class="nav-link nav-admin-btn" data-target="admin">Admin CRUD</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
+  <!-- Encabezado y Navegación SPA -->
+  <header class="navbar">
+    <div class="logo">FACTUM<span>.</span></div>
+    <nav>
+      <button class="nav-btn active" data-target="sec-inicio">Inicio</button>
+      <button class="nav-btn" data-target="sec-portafolio">Portafolio</button>
+      <button class="nav-btn" data-target="sec-admin">Panel Admin</button>
+    </nav>
+  </header>
 
-    <main id="home" class="page-view active">
-        <section class="hero">
-            <div class="container">
-                <div class="hero-content">
-                    <h1>Arquitectura y Alta Ingeniería que Trasciende</h1>
-                    <p>En Factum transformamos ideas vanguardistas en estructuras sólidas, combinando diseño de autor y procesos de construcción de máxima precisión técnica.</p>
-                    <button class="btn btn-primary" id="hero-cta">Ver Portafolio</button>
-                </div>
-            </div>
-        </section>
+  <!-- Contenedor Principal de Secciones SPA -->
+  <main class="container">
 
-        <section class="home-sections container">
-            <div class="section-title">
-                <h2>Nuestros Servicios</h2>
-            </div>
-            <div class="grid-services">
-                <div class="service-card">
-                    <h3>01 / Diseño Arquitectónico</h3>
-                    <p>Conceptualización y desarrollo de espacios modernos, funcionales y sostenibles con fuerte identidad corporativa y residencial.</p>
-                </div>
-                <div class="service-card">
-                    <h3>02 / Construcción e Ingeniería</h3>
-                    <p>Ejecución de obras con rigurosos controles de calidad estructural, optimización de recursos y seguridad de vanguardia.</p>
-                </div>
-                <div class="service-card">
-                    <h3>03 / Modelado BIM Avanzado</h3>
-                    <p>Supervisión digital inteligente en entornos comunes de datos para mitigar imprevistos, controlando costos y plazos.</p>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <section id="about" class="page-view">
-        <div class="container">
-            <div class="about-wrapper">
-                <div class="about-text">
-                    <h2>Diseñamos el Futuro, Construimos Realidades</h2>
-                    <p>Factum nació con la firme convicción de liderar el mercado premium de la construcción y la arquitectura técnica, uniendo diseño y rigurosidad constructiva.</p>
-                    <p>Cada obra es concebida con meticulosidad estructural y estética atemporal, aplicando metodologías tecnológicas que garantizan una entrega transparente a nuestros clientes.</p>
-                    
-                    <div class="pillars">
-                        <div class="pillar-item">
-                            <h4>Tecnología Aplicada</h4>
-                            <p>Uso nativo de gemelos digitales y control automatizado en frentes de obra.</p>
-                        </div>
-                        <div class="pillar-item">
-                            <h4>Garantía Factum</h4>
-                            <p>Control exacto de presupuestos y materiales certificados bajo norma.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="about-img">
-                    <img src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=800&q=80" alt="Estudio Factum">
-                </div>
-            </div>
-        </div>
+    <!-- SECCIÓN 1: INICIO (HERO) -->
+    <section id="sec-inicio" class="view-section active">
+      <div class="hero">
+        <h1>Arquitectura & Ingeniería Vanguardista</h1>
+        <p>Plataforma interactiva para la gestión integral de proyectos de construcción de alta gama.</p>
+        <button class="btn btn-gold" onclick="switchView('sec-portafolio')">Ver Portafolio</button>
+      </div>
     </section>
 
-    <section id="portfolio" class="page-view">
-        <div class="container">
-            <div class="section-title">
-                <h2>Proyectos Destacados</h2>
-            </div>
-
-            <div class="filter-container">
-                <button class="filter-btn active" data-filter="all">Todos</button>
-                <button class="filter-btn" data-filter="residential">Residencial</button>
-                <button class="filter-btn" data-filter="commercial">Comercial</button>
-                <button class="filter-btn" data-filter="infrastructure">Infraestructura</button>
-            </div>
-
-            <div class="grid-portfolio" id="public-portfolio-grid">
-                <!-- Se renderiza dinámicamente desde el script para interactuar con el CRUD -->
-            </div>
-        </div>
+    <!-- SECCIÓN 2: PORTAFOLIO PÚBLICO -->
+    <section id="sec-portafolio" class="view-section">
+      <h2 class="section-title">Portafolio de Proyectos</h2>
+      <div class="filter-box">
+        <input type="text" id="search-input" placeholder="Buscar proyecto..." onkeyup="filterProjects()">
+      </div>
+      <!-- Rejilla con Carga Asíncrona -->
+      <div id="portfolio-grid" class="grid">
+        <p class="loading-text">Cargando servicios web...</p>
+      </div>
     </section>
 
-    <section id="contact" class="page-view">
-        <div class="container">
-            <div class="section-title">
-                <h2>Iniciar un Proyecto</h2>
-            </div>
-            
-            <div class="contact-wrapper">
-                <div class="contact-info">
-                    <h3>¿Tienes una idea en mente? Hagámosla realidad.</h3>
-                    <p class="contact-desc">Ponte en contacto con nuestra división de ingeniería y arquitectura para agendar una consultoría técnica.</p>
-                    
-                    <div class="contact-details">
-                        <div class="contact-detail-item">
-                            <strong>Oficina Principal</strong>
-                            <p>Av. Arquitectura Moderna 1024, San Isidro</p>
-                        </div>
-                        <div class="contact-detail-item">
-                            <strong>Teléfono Directo</strong>
-                            <p>+51 (1) 455-8920</p>
-                        </div>
-                        <div class="contact-detail-item">
-                            <strong>Correo Corporativo</strong>
-                            <p>contacto@factum.pe</p>
-                        </div>
-                    </div>
-                </div>
+    <!-- SECCIÓN 3: PANEL ADMINISTRATIVO (CRUD + JWT) -->
+    <section id="sec-admin" class="view-section">
+      <h2 class="section-title">Administración de Proyectos</h2>
 
-                <div class="contact-form">
-                    <h3>Formulario de Cotización</h3>
-                    <form id="factumForm">
-                        <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Nombre Completo" required>
-                        </div>
-                        <div class="form-group">
-                            <input type="email" class="form-control" placeholder="Correo Electrónico" required>
-                        </div>
-                        <div class="form-group">
-                            <textarea class="form-control" placeholder="Describe brevemente los requerimientos de la obra..." required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-block">Enviar Solicitud</button>
-                    </form>
-                </div>
-            </div>
+      <!-- Formulario de Autenticación / OAuth2 Simulado -->
+      <div id="auth-container" class="card">
+        <h3>Autenticación Administrativa</h3>
+        <p class="hint">Ingrese credenciales corporativas (User: <code>admin</code> | Pass: <code>factum2026</code>)</p>
+        <form id="login-form">
+          <input type="text" id="auth-user" placeholder="Usuario" required>
+          <input type="password" id="auth-pass" placeholder="Contraseña" required>
+          <button type="submit" class="btn btn-dark">Iniciar Sesión</button>
+        </form>
+        <div id="auth-status"></div>
+      </div>
+
+      <!-- Panel CRUD (Oculto hasta autenticarse) -->
+      <div id="crud-container" class="card hidden">
+        <div class="admin-header">
+          <h3>Gestión de Entidades</h3>
+          <button class="btn btn-danger" onclick="logout()">Cerrar Sesión</button>
         </div>
+
+        <form id="project-form" class="crud-form">
+          <input type="hidden" id="proj-id">
+          <input type="text" id="proj-title" placeholder="Título del Proyecto" required>
+          <input type="text" id="proj-category" placeholder="Categoría" required>
+          <input type="text" id="proj-budget" placeholder="Presupuesto (Ej: $500,000)">
+          <textarea id="proj-desc" placeholder="Descripción breve"></textarea>
+          <button type="submit" class="btn btn-gold" id="btn-save">Guardar Proyecto</button>
+        </form>
+
+        <!-- Tabla Administrativa con Desbordamiento Responsive -->
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Categoría</th>
+                <th>Presupuesto</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="admin-table-body">
+              <!-- Filas inyectadas por JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </section>
 
-    <!-- ENTORNO ADMINISTRATIVO (CRUD) -->
-    <section id="admin" class="page-view">
-        <div class="container">
-            <div class="section-title">
-                <h2>Panel Administrativo - Gestión de Proyectos</h2>
-            </div>
+  </main>
 
-            <div class="admin-actions">
-                <button class="btn btn-primary" id="btn-open-modal">Nuevo Proyecto</button>
-            </div>
-
-            <div class="table-responsive">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Imagen</th>
-                            <th>Título</th>
-                            <th>Categoría</th>
-                            <th>Año</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="crud-table-body">
-                        <!-- Filas cargadas de forma asíncrona -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </section>
-
-    <!-- MODAL PARA NUEVO / EDITAR -->
-    <div class="modal" id="projectModal">
-        <div class="modal-content">
-            <span class="close-modal" id="btn-close-modal">&times;</span>
-            <h3 id="modal-title">Registrar Proyecto</h3>
-            <form id="crudForm">
-                <input type="hidden" id="project-id">
-                <div class="form-group">
-                    <label for="project-title">Título del Proyecto</label>
-                    <input type="text" id="project-title" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="project-category">Categoría</label>
-                    <select id="project-category" class="form-control" required>
-                        <option value="residential">Residencial</option>
-                        <option value="commercial">Comercial</option>
-                        <option value="infrastructure">Infraestructura</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="project-year">Año de Ejecución</label>
-                    <input type="number" id="project-year" class="form-control" required min="2000" max="2030">
-                </div>
-                <div class="form-group">
-                    <label for="project-img">URL de la Imagen</label>
-                    <input type="url" id="project-img" class="form-control" required>
-                </div>
-                <button type="submit" class="btn btn-primary btn-block" id="btn-submit-form">Guardar Cambios</button>
-            </form>
-        </div>
-    </div>
-
-    <footer>
-        <div class="container footer-content">
-            <div class="footer-logo">FACTUM<span>.</span></div>
-            <div class="copyright">&copy; 2026 FACTUM. Todos los derechos reservados. Desarrollado bajo estándares W3C.</div>
-        </div>
-    </footer>
-
-    <script src="script.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>

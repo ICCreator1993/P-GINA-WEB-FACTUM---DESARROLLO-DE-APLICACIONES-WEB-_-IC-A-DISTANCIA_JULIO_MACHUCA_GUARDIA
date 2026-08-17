@@ -1,278 +1,199 @@
-:root {
-    --bg-primary: #F8F9FA;
-    --bg-dark: #121212;
-    --bg-card: #FFFFFF;
-    --text-main: #1A1A1A;
-    --text-muted: #666666;
-    --text-light: #F8F9FA;
-    --accent: #D4AF37; /* Oro Mate Premium */
-    --danger: #C0392B;
-    --success: #27AE60;
-    --transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-    --font-title: 'Montserrat', 'Helvetica Neue', sans-serif;
-    --font-body: 'Inter', 'Segoe UI', sans-serif;
+// URL del Servicio Web (Cambiar URL local por la proporcionada por Render/Vercel en producción)
+const API_BASE_URL = 'http://localhost:3000/api/v1';
+let jwtToken = localStorage.getItem('factum_jwt') || '';
+let allProjects = [];
+
+// ==========================================
+// 1. NAVEGACIÓN SINGLE PAGE APPLICATION (SPA)
+// ==========================================
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+
+    e.target.classList.add('active');
+    const targetId = e.target.getAttribute('data-target');
+    document.getElementById(targetId).classList.add('active');
+  });
+});
+
+function switchView(sectionId) {
+  document.querySelector(`[data-target="${sectionId}"]`).click();
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+// ==========================================
+// 2. CONSUMO ASÍNCRONO DE LA API (GET)
+// ==========================================
+async function loadProjects() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/projects`);
+    if (!res.ok) throw new Error('Error al consultar el servicio web');
+    
+    const result = await res.json();
+    allProjects = result.data;
+    
+    renderPortfolio(allProjects);
+    renderAdminTable(allProjects);
+  } catch (err) {
+    console.error('Error de red:', err);
+    document.getElementById('portfolio-grid').innerHTML = '<p>Error al conectar con la API.</p>';
+  }
 }
 
-body {
-    font-family: var(--font-body);
-    background-color: var(--bg-primary);
-    color: var(--text-main);
-    line-height: 1.6;
-    overflow-x: hidden;
+function renderPortfolio(projects) {
+  const container = document.getElementById('portfolio-grid');
+  if (!projects.length) {
+    container.innerHTML = '<p>No hay proyectos disponibles.</p>';
+    return;
+  }
+
+  container.innerHTML = projects.map(p => `
+    <article class="project-card">
+      <h3>${sanitize(p.title)}</h3>
+      <p><strong>Categoría:</strong> ${sanitize(p.category)}</p>
+      <p><strong>Presupuesto:</strong> ${sanitize(p.budget)}</p>
+      <p>${sanitize(p.description)}</p>
+    </article>
+  `).join('');
 }
 
-h1, h2, h3, h4 {
-    font-family: var(--font-title);
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    text-transform: uppercase;
+// ==========================================
+// 3. AUTENTICACIÓN JWT (OAUTH2 SIMULADO)
+// ==========================================
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const username = document.getElementById('auth-user').value;
+  const password = document.getElementById('auth-pass').value;
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      jwtToken = data.token;
+      localStorage.setItem('factum_jwt', jwtToken);
+      checkAuthState();
+    } else {
+      alert(data.error || 'Credenciales incorrectas');
+    }
+  } catch (err) {
+    alert('Fallo de conexión durante la autenticación.');
+  }
+});
+
+function checkAuthState() {
+  const authContainer = document.getElementById('auth-container');
+  const crudContainer = document.getElementById('crud-container');
+
+  if (jwtToken) {
+    authContainer.classList.add('hidden');
+    crudContainer.classList.remove('hidden');
+  } else {
+    authContainer.classList.remove('hidden');
+    crudContainer.classList.add('hidden');
+  }
 }
 
-a {
-    text-decoration: none;
-    color: inherit;
-    transition: var(--transition);
+function logout() {
+  jwtToken = '';
+  localStorage.removeItem('factum_jwt');
+  checkAuthState();
 }
 
-.container {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 24px;
+// ==========================================
+// 4. OPERACIONES CRUD (CREAR, EDITAR, ELIMINAR)
+// ==========================================
+function renderAdminTable(projects) {
+  const tbody = document.getElementById('admin-table-body');
+  tbody.innerHTML = projects.map(p => `
+    <tr>
+      <td>${sanitize(p.id)}</td>
+      <td>${sanitize(p.title)}</td>
+      <td>${sanitize(p.category)}</td>
+      <td>${sanitize(p.budget)}</td>
+      <td>
+        <button class="btn btn-dark" onclick="editProject('${p.id}')">Editar</button>
+        <button class="btn btn-danger" onclick="deleteProject('${p.id}')">Eliminar</button>
+      </td>
+    </tr>
+  `).join('');
 }
 
-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1000;
-    transition: var(--transition);
-    padding: 24px 0;
+document.getElementById('project-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const id = document.getElementById('proj-id').value;
+  const payload = {
+    title: document.getElementById('proj-title').value,
+    category: document.getElementById('proj-category').value,
+    budget: document.getElementById('proj-budget').value,
+    description: document.getElementById('proj-desc').value
+  };
+
+  const method = id ? 'PUT' : 'POST';
+  const endpoint = id ? `${API_BASE_URL}/projects/${id}` : `${API_BASE_URL}/projects`;
+
+  try {
+    const res = await fetch(endpoint, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${jwtToken}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok) {
+      document.getElementById('project-form').reset();
+      document.getElementById('proj-id').value = '';
+      loadProjects();
+    } else {
+      const errData = await res.json();
+      alert(`Error de seguridad o validación: ${errData.error}`);
+    }
+  } catch (err) {
+    alert('Fallo de conexión al guardar.');
+  }
+});
+
+function editProject(id) {
+  const p = allProjects.find(item => item.id === id);
+  if (!p) return;
+  document.getElementById('proj-id').value = p.id;
+  document.getElementById('proj-title').value = p.title;
+  document.getElementById('proj-category').value = p.category;
+  document.getElementById('proj-budget').value = p.budget;
+  document.getElementById('proj-desc').value = p.description;
 }
 
-header.scrolled, header:not(#home) {
-    background-color: rgba(18, 18, 18, 0.95);
-    backdrop-filter: blur(10px);
-    padding: 16px 0;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+async function deleteProject(id) {
+  if (!confirm('¿Seguro que desea eliminar este registro?')) return;
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/projects/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${jwtToken}` }
+    });
+
+    if (res.ok) loadProjects();
+    else alert('Error al eliminar. Verifique su sesión.');
+  } catch (err) {
+    alert('Fallo de conexión.');
+  }
 }
 
-header.scrolled .logo, header:not(#home) .logo { color: var(--text-light); }
-header.scrolled nav a, header:not(#home) nav a { color: #BBBBBB; }
-header.scrolled nav a:hover, header.scrolled nav a.active, header:not(#home) nav a:hover { color: var(--accent); }
-
-.nav-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+// Sanitización para prevenir Cross-Site Scripting (XSS)
+function sanitize(str) {
+  return str ? String(str).replace(/[&<>"']/g, match => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[match])) : '';
 }
 
-.logo {
-    font-family: var(--font-title);
-    font-size: 24px;
-    font-weight: 900;
-    letter-spacing: 4px;
-    color: var(--text-main);
-    cursor: pointer;
-}
-
-.logo span { color: var(--accent); }
-nav ul { display: flex; gap: 32px; list-style: none; }
-
-nav a {
-    font-size: 13px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--text-main);
-    padding: 8px 0;
-    position: relative;
-}
-
-nav a::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background-color: var(--accent);
-    transition: var(--transition);
-}
-
-nav a:hover::after, nav a.active::after { width: 100%; }
-nav a.active { color: var(--accent); }
-
-.nav-admin-btn {
-    border: 1px solid var(--accent);
-    padding: 6px 12px !important;
-    color: var(--accent) !important;
-}
-
-.page-view {
-    display: none;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.5s ease, transform 0.5s ease;
-    padding-top: 120px;
-    min-height: 100vh;
-}
-
-.page-view.active {
-    display: block;
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.btn {
-    display: inline-block;
-    padding: 14px 28px;
-    font-family: var(--font-title);
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    border: 2px solid var(--text-main);
-    background: transparent;
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.btn-primary { background-color: var(--text-main); color: var(--text-light); }
-.btn-primary:hover {
-    background-color: var(--accent);
-    border-color: var(--accent);
-    color: var(--text-light);
-}
-.btn-danger { border-color: var(--danger); color: var(--danger); padding: 8px 16px; font-size: 10px; }
-.btn-danger:hover { background-color: var(--danger); color: white; }
-.btn-edit { border-color: var(--accent); color: var(--accent); padding: 8px 16px; font-size: 10px; margin-right: 5px; }
-.btn-edit:hover { background-color: var(--accent); color: white; }
-.btn-block { width: 100%; }
-
-.section-title { text-align: center; margin-bottom: 48px; }
-.section-title h2 { font-size: 32px; }
-.section-title::after {
-    content: ''; display: block; width: 50px; height: 3px;
-    background-color: var(--accent); margin: 16px auto 0;
-}
-
-/* --- HERO --- */
-#home { padding-top: 0; }
-.hero {
-    height: 100vh;
-    background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
-    display: flex;
-    align-items: center;
-    color: var(--text-light);
-}
-.hero-content { max-width: 700px; }
-.hero h1 { font-size: 54px; line-height: 1.1; margin-bottom: 24px; }
-.hero p { font-size: 18px; margin-bottom: 32px; color: #CCCCCC; }
-
-.home-sections { padding: 80px 0; }
-.grid-services { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; }
-.service-card {
-    background-color: var(--bg-card); padding: 40px;
-    border-top: 4px solid var(--text-main);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.03); transition: var(--transition);
-}
-.service-card:hover {
-    transform: translateY(-10px); border-top-color: var(--accent);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
-}
-.service-card h3 { margin-bottom: 16px; font-size: 18px; }
-
-/* --- NOSOTROS --- */
-.about-wrapper { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 64px; align-items: center; padding: 40px 0; }
-.about-text h2 { font-size: 36px; margin-bottom: 24px; }
-.about-text p { color: var(--text-muted); margin-bottom: 20px; }
-.about-img img { box-shadow: 20px 20px 0px var(--accent); width: 100%; object-fit: cover; }
-.pillars { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-top: 48px; }
-.pillar-item { border-left: 2px solid var(--accent); padding-left: 16px; }
-.pillar-item h4 { font-size: 14px; margin-bottom: 8px; }
-
-/* --- PORTAFOLIO --- */
-.filter-container { display: flex; justify-content: center; gap: 16px; margin-bottom: 40px; }
-.filter-btn {
-    background: transparent; border: none; font-family: var(--font-title);
-    font-size: 12px; font-weight: 600; text-transform: uppercase;
-    letter-spacing: 1px; padding: 8px 16px; cursor: pointer;
-    transition: var(--transition); border-bottom: 2px solid transparent;
-}
-.filter-btn.active, .filter-btn:hover { color: var(--accent); border-bottom-color: var(--accent); }
-.grid-portfolio { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 24px; }
-.portfolio-item { position: relative; overflow: hidden; background-color: var(--bg-dark); }
-.portfolio-item img { transition: var(--transition); width: 100%; height: 400px; object-fit: cover; }
-.portfolio-overlay {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(18, 18, 18, 0.85); display: flex; flex-direction: column;
-    justify-content: center; align-items: center; opacity: 0;
-    transition: var(--transition); padding: 24px; color: var(--text-light);
-}
-.portfolio-item:hover img { transform: scale(1.05); }
-.portfolio-item:hover .portfolio-overlay { opacity: 1; }
-.portfolio-overlay h3 { font-size: 20px; margin-bottom: 8px; transform: translateY(20px); transition: var(--transition); }
-.portfolio-overlay p { font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: var(--accent); transform: translateY(20px); transition: var(--transition); transition-delay: 0.1s; }
-.portfolio-item:hover .portfolio-overlay h3, .portfolio-item:hover .portfolio-overlay p { transform: translateY(0); }
-
-/* --- CONTACTO --- */
-.contact-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; padding: 40px 0; }
-.contact-info h3, .contact-form h3 { font-size: 20px; margin-bottom: 24px; }
-.contact-desc { color: var(--text-muted); margin-bottom: 32px; }
-.contact-details { margin-bottom: 40px; }
-.contact-detail-item { margin-bottom: 20px; }
-.contact-detail-item strong { display: block; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; color: var(--accent); }
-.form-group { margin-bottom: 24px; }
-.form-control {
-    width: 100%; padding: 16px; border: 1px solid #DDDDDD;
-    background-color: var(--bg-card); font-family: var(--font-body);
-    font-size: 14px; transition: var(--transition);
-}
-.form-control:focus { outline: none; border-color: var(--accent); }
-textarea.form-control { height: 150px; resize: none; }
-
-/* --- SECCIÓN ADMIN CRUD --- */
-.admin-actions { margin-bottom: 30px; display: flex; justify-content: flex-end; }
-.table-responsive { width: 100%; overflow-x: auto; background: var(--bg-card); box-shadow: 0 4px 20px rgba(0,0,0,0.02); }
-.admin-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
-.admin-table th, .admin-table td { padding: 16px 24px; border-bottom: 1px solid #EEEEEE; }
-.admin-table th { background-color: var(--bg-dark); color: var(--text-light); text-transform: uppercase; font-size: 12px; letter-spacing: 1px; }
-.admin-table td img { width: 60px; height: 40px; object-fit: cover; border-radius: 2px; }
-
-/* --- VENTANA MODAL --- */
-.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-.modal.active { display: flex; }
-.modal-content { background: var(--bg-card); padding: 40px; width: 100%; max-width: 500px; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
-.modal-content h3 { margin-bottom: 24px; font-size: 20px; border-bottom: 2px solid var(--accent); padding-bottom: 10px; }
-.close-modal { position: absolute; top: 20px; right: 20px; font-size: 28px; cursor: pointer; color: var(--text-muted); transition: var(--transition); }
-.close-modal:hover { color: var(--text-main); }
-
-footer { background-color: var(--bg-dark); color: var(--text-light); padding: 60px 0; margin-top: 80px; }
-.footer-content { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #222222; padding-top: 40px; }
-.footer-logo { font-family: var(--font-title); font-weight: 900; letter-spacing: 3px; }
-.footer-logo span { color: var(--accent); }
-.copyright { color: #666666; font-size: 13px; }
-
-/* --- DISEÑO RESPONSIVO (MEDIA QUERIES) --- */
-@media (max-width: 992px) {
-    .about-wrapper, .contact-wrapper { grid-template-columns: 1fr; gap: 40px; }
-    .hero h1 { font-size: 42px; }
-}
-
-@media (max-width: 768px) {
-    header { background-color: var(--bg-dark); padding: 16px 0; }
-    .nav-container { flex-direction: column; gap: 16px; }
-    nav ul { gap: 16px; flex-wrap: wrap; justify-content: center; }
-    .hero h1 { font-size: 32px; }
-    .hero p { font-size: 15px; }
-    .filter-container { flex-wrap: wrap; }
-    .admin-table th, .admin-table td { padding: 12px 14px; font-size: 12px; }
-}
+// Inicialización al cargar la ventana
+document.addEventListener('DOMContentLoaded', () => {
+  checkAuthState();
+  loadProjects();
+});

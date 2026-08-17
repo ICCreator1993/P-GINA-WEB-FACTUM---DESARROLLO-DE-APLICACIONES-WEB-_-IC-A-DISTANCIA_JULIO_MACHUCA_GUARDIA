@@ -1,104 +1,490 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FACTUM | Arquitectura e Ingeniería</title>
-  <link rel="stylesheet" href="css/styles.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FACTUM | Diseño y Construcción</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #F8F9FA;
+            --bg-dark: #121212;
+            --bg-card: #FFFFFF;
+            --text-main: #1A1A1A;
+            --text-muted: #666666;
+            --text-light: #F8F9FA;
+            --accent: #D4AF37;
+            --danger: #d9534f;
+            --transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            --font-title: 'Montserrat', 'Helvetica Neue', sans-serif;
+            --font-body: 'Inter', 'Segoe UI', sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font-body); background-color: var(--bg-primary); color: var(--text-main); line-height: 1.6; overflow-x: hidden; }
+        h1, h2, h3, h4 { font-family: var(--font-title); font-weight: 700; letter-spacing: -0.02em; text-transform: uppercase; }
+        a { text-decoration: none; color: inherit; transition: var(--transition); }
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+        header { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; transition: var(--transition); padding: 24px 0; }
+        header.scrolled { background-color: rgba(18, 18, 18, 0.95); backdrop-filter: blur(10px); padding: 16px 0; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
+        header.scrolled .logo { color: var(--text-light); }
+        header.scrolled nav a { color: #BBBBBB; }
+        header.scrolled nav a:hover, header.scrolled nav a.active { color: var(--accent); }
+
+        .nav-container { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-family: var(--font-title); font-size: 24px; font-weight: 900; letter-spacing: 4px; color: var(--text-main); cursor: pointer; }
+        .logo span { color: var(--accent); }
+        nav ul { display: flex; gap: 24px; list-style: none; }
+        nav a { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; color: var(--text-main); padding: 8px 0; position: relative; }
+        nav a::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background-color: var(--accent); transition: var(--transition); }
+        nav a:hover::after, nav a.active::after { width: 100%; }
+        nav a.active { color: var(--accent); }
+
+        .page-view { display: none; opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease; padding-top: 100px; min-height: 100vh; }
+        .page-view.active { display: block; opacity: 1; transform: translateY(0); }
+
+        .btn { display: inline-block; padding: 12px 24px; font-family: var(--font-title); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; border: 2px solid var(--text-main); background: transparent; cursor: pointer; transition: var(--transition); }
+        .btn-primary { background-color: var(--text-main); color: var(--text-light); }
+        .btn-primary:hover { background-color: var(--accent); border-color: var(--accent); color: var(--text-light); }
+        .btn-danger { background-color: var(--danger); border-color: var(--danger); color: #fff; }
+        .btn-block { width: 100%; }
+
+        .section-title { text-align: center; margin-bottom: 48px; }
+        .section-title h2 { font-size: 32px; }
+        .section-title::after { content: ''; display: block; width: 50px; height: 3px; background-color: var(--accent); margin: 16px auto 0; }
+
+        #home { padding-top: 0; }
+        .hero { height: 100vh; background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; display: flex; align-items: center; color: var(--text-light); }
+        .hero-content { max-width: 700px; }
+        .hero h1 { font-size: 54px; line-height: 1.1; margin-bottom: 24px; }
+        .hero p { font-size: 18px; margin-bottom: 32px; color: #CCCCCC; }
+
+        .home-sections { padding: 80px 0; }
+        .grid-services { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; }
+        .service-card { background-color: var(--bg-card); padding: 40px; border-top: 4px solid var(--text-main); box-shadow: 0 10px 30px rgba(0,0,0,0.03); transition: var(--transition); }
+        .service-card:hover { transform: translateY(-10px); border-top-color: var(--accent); box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
+
+        .about-wrapper { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 64px; align-items: center; padding: 40px 0; }
+        .about-img img { box-shadow: 20px 20px 0px var(--accent); width: 100%; object-fit: cover; }
+        .pillars { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-top: 48px; }
+        .pillar-item { border-left: 2px solid var(--accent); padding-left: 16px; }
+
+        .filter-container { display: flex; justify-content: center; gap: 16px; margin-bottom: 40px; }
+        .filter-btn { background: transparent; border: none; font-family: var(--font-title); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; padding: 8px 16px; cursor: pointer; transition: var(--transition); border-bottom: 2px solid transparent; }
+        .filter-btn.active, .filter-btn:hover { color: var(--accent); border-bottom-color: var(--accent); }
+        .grid-portfolio { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
+        .portfolio-item { position: relative; overflow: hidden; background-color: var(--bg-dark); }
+        .portfolio-item img { transition: var(--transition); width: 100%; height: 350px; object-fit: cover; }
+        .portfolio-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(18, 18, 18, 0.85); display: flex; flex-direction: column; justify-content: center; align-items: center; opacity: 0; transition: var(--transition); padding: 24px; color: var(--text-light); text-align: center; }
+        .portfolio-item:hover img { transform: scale(1.05); }
+        .portfolio-item:hover .portfolio-overlay { opacity: 1; }
+
+        .contact-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; padding: 40px 0; }
+        .form-group { margin-bottom: 24px; }
+        .form-control { width: 100%; padding: 16px; border: 1px solid #DDDDDD; background-color: var(--bg-card); font-family: var(--font-body); font-size: 14px; }
+        .form-control:focus { outline: none; border-color: var(--accent); }
+        textarea.form-control { height: 120px; resize: none; }
+
+        /* Estilos del Panel Admin */
+        .admin-card { background: var(--bg-card); padding: 32px; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); max-width: 600px; margin: 0 auto 40px; }
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; }
+        .data-table th, .data-table td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        .data-table th { background-color: var(--bg-dark); color: var(--accent); }
+        .hidden { display: none !important; }
+
+        footer { background-color: var(--bg-dark); color: var(--text-light); padding: 60px 0; margin-top: 80px; }
+        .footer-content { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #222222; padding-top: 40px; }
+
+        @media (max-width: 768px) {
+            header { background-color: var(--bg-dark); padding: 16px 0; }
+            .logo { color: var(--text-light); }
+            nav a { color: #BBBBBB; }
+            .about-wrapper, .contact-wrapper { grid-template-columns: 1fr; gap: 40px; }
+        }
+    </style>
 </head>
 <body>
 
-  <!-- Encabezado y Navegación SPA -->
-  <header class="navbar">
-    <div class="logo">FACTUM<span>.</span></div>
-    <nav>
-      <button class="nav-btn active" data-target="sec-inicio">Inicio</button>
-      <button class="nav-btn" data-target="sec-portafolio">Portafolio</button>
-      <button class="nav-btn" data-target="sec-admin">Panel Admin</button>
-    </nav>
-  </header>
-
-  <!-- Contenedor Principal de Secciones SPA -->
-  <main class="container">
-
-    <!-- SECCIÓN 1: INICIO (HERO) -->
-    <section id="sec-inicio" class="view-section active">
-      <div class="hero">
-        <h1>Arquitectura & Ingeniería Vanguardista</h1>
-        <p>Plataforma interactiva para la gestión integral de proyectos de construcción de alta gama.</p>
-        <button class="btn btn-gold" onclick="switchView('sec-portafolio')">Ver Portafolio</button>
-      </div>
-    </section>
-
-    <!-- SECCIÓN 2: PORTAFOLIO PÚBLICO -->
-    <section id="sec-portafolio" class="view-section">
-      <h2 class="section-title">Portafolio de Proyectos</h2>
-      <div class="filter-box">
-        <input type="text" id="search-input" placeholder="Buscar proyecto..." onkeyup="filterProjects()">
-      </div>
-      <!-- Rejilla con Carga Asíncrona -->
-      <div id="portfolio-grid" class="grid">
-        <p class="loading-text">Cargando servicios web...</p>
-      </div>
-    </section>
-
-    <!-- SECCIÓN 3: PANEL ADMINISTRATIVO (CRUD + JWT) -->
-    <section id="sec-admin" class="view-section">
-      <h2 class="section-title">Administración de Proyectos</h2>
-
-      <!-- Formulario de Autenticación / OAuth2 Simulado -->
-      <div id="auth-container" class="card">
-        <h3>Autenticación Administrativa</h3>
-        <p class="hint">Ingrese credenciales corporativas (User: <code>admin</code> | Pass: <code>factum2026</code>)</p>
-        <form id="login-form">
-          <input type="text" id="auth-user" placeholder="Usuario" required>
-          <input type="password" id="auth-pass" placeholder="Contraseña" required>
-          <button type="submit" class="btn btn-dark">Iniciar Sesión</button>
-        </form>
-        <div id="auth-status"></div>
-      </div>
-
-      <!-- Panel CRUD (Oculto hasta autenticarse) -->
-      <div id="crud-container" class="card hidden">
-        <div class="admin-header">
-          <h3>Gestión de Entidades</h3>
-          <button class="btn btn-danger" onclick="logout()">Cerrar Sesión</button>
+    <header id="main-header">
+        <div class="container nav-container">
+            <a href="#" class="logo" data-target="home">FACTUM<span>.</span></a>
+            <nav>
+                <ul>
+                    <li><a href="#" class="nav-link active" data-target="home">Inicio</a></li>
+                    <li><a href="#" class="nav-link" data-target="about">Nosotros</a></li>
+                    <li><a href="#" class="nav-link" data-target="portfolio">Portafolio</a></li>
+                    <li><a href="#" class="nav-link" data-target="contact">Contacto</a></li>
+                    <li><a href="#" class="nav-link" data-target="admin">Admin API</a></li>
+                </ul>
+            </nav>
         </div>
+    </header>
 
-        <form id="project-form" class="crud-form">
-          <input type="hidden" id="proj-id">
-          <input type="text" id="proj-title" placeholder="Título del Proyecto" required>
-          <input type="text" id="proj-category" placeholder="Categoría" required>
-          <input type="text" id="proj-budget" placeholder="Presupuesto (Ej: $500,000)">
-          <textarea id="proj-desc" placeholder="Descripción breve"></textarea>
-          <button type="submit" class="btn btn-gold" id="btn-save">Guardar Proyecto</button>
-        </form>
+    <!-- INICIO -->
+    <main id="home" class="page-view active">
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h1>Arquitectura y Alta Ingeniería que Trasciende</h1>
+                    <p>En Factum transformamos ideas vanguardistas en estructuras sólidas, combinando diseño de autor y precisión técnica.</p>
+                    <button class="btn btn-primary" id="hero-cta">Ver Portafolio</button>
+                </div>
+            </div>
+        </section>
 
-        <!-- Tabla Administrativa con Desbordamiento Responsive -->
-        <div class="table-responsive">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Título</th>
-                <th>Categoría</th>
-                <th>Presupuesto</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="admin-table-body">
-              <!-- Filas inyectadas por JS -->
-            </tbody>
-          </table>
+        <section class="home-sections container">
+            <div class="section-title"><h2>Nuestros Servicios</h2></div>
+            <div class="grid-services">
+                <div class="service-card">
+                    <h3>01 / Diseño Arquitectónico</h3>
+                    <p>Espacios modernos, funcionales y sostenibles con fuerte identidad corporativa.</p>
+                </div>
+                <div class="service-card">
+                    <h3>02 / Construcción e Ingeniería</h3>
+                    <p>Ejecución de obras con rigurosos controles de calidad estructural.</p>
+                </div>
+                <div class="service-card">
+                    <h3>03 / Modelado BIM Avanzado</h3>
+                    <p>Supervisión digital inteligente para mitigar imprevistos y controlar costos.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- NOSOTROS -->
+    <section id="about" class="page-view">
+        <div class="container">
+            <div class="about-wrapper">
+                <div class="about-text">
+                    <h2>Diseñamos el Futuro, Construimos Realidades</h2>
+                    <p>Factum nació con la convicción de liderar el mercado premium de la arquitectura técnica y la ingeniería sólida.</p>
+                    <div class="pillars">
+                        <div class="pillar-item">
+                            <h4>Tecnología Aplicada</h4>
+                            <p>Uso nativo de gemelos digitales y control automatizado.</p>
+                        </div>
+                        <div class="pillar-item">
+                            <h4>Garantía Factum</h4>
+                            <p>Control exacto de presupuestos bajo normas de calidad.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-img">
+                    <img src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=800&q=80" alt="Estudio Factum">
+                </div>
+            </div>
         </div>
-      </div>
-
     </section>
 
-  </main>
+    <!-- PORTAFOLIO -->
+    <section id="portfolio" class="page-view">
+        <div class="container">
+            <div class="section-title"><h2>Proyectos Destacados</h2></div>
+            <div class="filter-container">
+                <button class="filter-btn active" data-filter="all">Todos</button>
+                <button class="filter-btn" data-filter="residential">Residencial</button>
+                <button class="filter-btn" data-filter="commercial">Comercial</button>
+                <button class="filter-btn" data-filter="infrastructure">Infraestructura</button>
+            </div>
+            <div id="grid-portfolio" class="grid-portfolio">
+                <!-- Se inyecta dinámicamente desde el Servicio Web API -->
+            </div>
+        </div>
+    </section>
 
-  <script src="js/app.js"></script>
+    <!-- CONTACTO -->
+    <section id="contact" class="page-view">
+        <div class="container">
+            <div class="section-title"><h2>Iniciar un Proyecto</h2></div>
+            <div class="contact-wrapper">
+                <div class="contact-info">
+                    <h3>¿Tienes una idea en mente? Hagámosla realidad.</h3>
+                    <p>Ponte en contacto con nuestra división de ingeniería para agendar una consultoría técnica.</p>
+                </div>
+                <div class="contact-form">
+                    <form id="factumForm">
+                        <div class="form-group"><input type="text" class="form-control" placeholder="Nombre Completo" required></div>
+                        <div class="form-group"><input type="email" class="form-control" placeholder="Correo Electrónico" required></div>
+                        <div class="form-group"><textarea class="form-control" placeholder="Describa requerimientos..." required></textarea></div>
+                        <button type="submit" class="btn btn-primary btn-block">Enviar Solicitud</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PANEL ADMINISTRATIVO Y CONSUMO API PROTEGIDO -->
+    <section id="admin" class="page-view">
+        <div class="container">
+            <div class="section-title"><h2>Gestión de Proyectos API</h2></div>
+
+            <!-- Autenticación JWT / Servicios de Terceros -->
+            <div id="auth-box" class="admin-card">
+                <h3>Iniciar Sesión (Administrador)</h3>
+                <p style="margin-bottom: 15px; font-size: 12px; color: var(--text-muted);">
+                    Credenciales demo: User: <code>admin</code> | Pass: <code>factum2026</code>
+                </p>
+                <form id="login-form">
+                    <div class="form-group"><input type="text" id="auth-user" class="form-control" placeholder="Usuario" required></div>
+                    <div class="form-group"><input type="password" id="auth-pass" class="form-control" placeholder="Contraseña" required></div>
+                    <button type="submit" class="btn btn-primary btn-block">Autenticar Token JWT</button>
+                </form>
+            </div>
+
+            <!-- Panel CRUD (Protegido por Token) -->
+            <div id="crud-box" class="admin-card hidden" style="max-width: 900px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <h3>Panel CRUD de Proyectos</h3>
+                    <button class="btn btn-danger" onclick="logout()">Cerrar Sesión</button>
+                </div>
+
+                <form id="add-project-form" style="margin-bottom: 30px;">
+                    <div class="form-group"><input type="text" id="p-title" class="form-control" placeholder="Título del Proyecto" required></div>
+                    <div class="form-group">
+                        <select id="p-category" class="form-control" required>
+                            <option value="residential">Residencial</option>
+                            <option value="commercial">Comercial</option>
+                            <option value="infrastructure">Infraestructura</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><input type="text" id="p-budget" class="form-control" placeholder="Presupuesto ($)"></div>
+                    <div class="form-group"><textarea id="p-desc" class="form-control" placeholder="Descripción breve"></textarea></div>
+                    <button type="submit" class="btn btn-primary">Guardar en API</button>
+                </form>
+
+                <div style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>Categoría</th>
+                                <th>Presupuesto</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-logo">FACTUM<span>.</span></div>
+            <div class="copyright">&copy; 2026 FACTUM. Todos los derechos reservados. Estándares W3C.</div>
+        </div>
+    </footer>
+
+    <script>
+        // Configuración de endpoint (Ajustar a URL de Render/Vercel en producción)
+        const API_URL = 'http://localhost:3000/api/v1';
+        let jwtToken = localStorage.getItem('factum_token') || '';
+        let projectsData = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initNavigation();
+            initFilters();
+            checkAuth();
+            fetchProjects();
+
+            // Contacto local
+            document.getElementById('factumForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                alert('¡Solicitud registrada con éxito! El equipo técnico de FACTUM se pondrá en contacto.');
+                e.target.reset();
+            });
+
+            // Login JWT
+            document.getElementById('login-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const username = document.getElementById('auth-user').value;
+                const password = document.getElementById('auth-pass').value;
+
+                try {
+                    const res = await fetch(`${API_URL}/auth/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password })
+                    });
+                    const data = await res.json();
+                    
+                    if (res.ok && data.token) {
+                        jwtToken = data.token;
+                        localStorage.setItem('factum_token', jwtToken);
+                        checkAuth();
+                    } else {
+                        alert(data.error || 'Credenciales no válidas');
+                    }
+                } catch (err) {
+                    alert('Error de conexión con el servicio web backend.');
+                }
+            });
+
+            // Agregar Proyecto POST
+            document.getElementById('add-project-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const payload = {
+                    title: document.getElementById('p-title').value,
+                    category: document.getElementById('p-category').value,
+                    budget: document.getElementById('p-budget').value,
+                    description: document.getElementById('p-desc').value
+                };
+
+                try {
+                    const res = await fetch(`${API_URL}/projects`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${jwtToken}`
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (res.ok) {
+                        e.target.reset();
+                        fetchProjects();
+                    } else {
+                        const err = await res.json();
+                        alert(`Error de autorización: ${err.error}`);
+                    }
+                } catch (err) {
+                    alert('Fallo al conectar con la API.');
+                }
+            });
+        });
+
+        // 1. Navegación SPA
+        function initNavigation() {
+            const links = document.querySelectorAll('.nav-link, .logo, #hero-cta');
+            links.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const target = link.getAttribute('data-target') || 'portfolio';
+                    
+                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                    document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
+                    
+                    const activeNav = document.querySelector(`.nav-link[data-target="${target}"]`);
+                    if (activeNav) activeNav.classList.add('active');
+                    
+                    const targetPage = document.getElementById(target);
+                    if (targetPage) targetPage.classList.add('active');
+                    
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            });
+        }
+
+        // 2. Consumo de API (GET) y sanitización XSS
+        async function fetchProjects() {
+            try {
+                const res = await fetch(`${API_URL}/projects`);
+                const result = await res.json();
+                projectsData = result.data || [];
+                renderPortfolio(projectsData);
+                renderAdminTable(projectsData);
+            } catch (err) {
+                console.warn('API local no disponible. Cargando fallback estático.');
+            }
+        }
+
+        function renderPortfolio(data) {
+            const grid = document.getElementById('grid-portfolio');
+            if (!data.length) {
+                grid.innerHTML = '<p>No hay proyectos registrados en el servicio web.</p>';
+                return;
+            }
+
+            grid.innerHTML = data.map(item => `
+                <div class="portfolio-item" data-category="${sanitize(item.category)}">
+                    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80" alt="${sanitize(item.title)}">
+                    <div class="portfolio-overlay">
+                        <h3>${sanitize(item.title)}</h3>
+                        <p>${sanitize(item.category)} / ${sanitize(item.budget)}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderAdminTable(data) {
+            const tbody = document.getElementById('admin-table-body');
+            tbody.innerHTML = data.map(item => `
+                <tr>
+                    <td>${sanitize(item.title)}</td>
+                    <td>${sanitize(item.category)}</td>
+                    <td>${sanitize(item.budget)}</td>
+                    <td>
+                        <button class="btn btn-danger" style="padding:4px 8px; font-size:10px;" onclick="deleteProject('${item.id}')">Eliminar</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function deleteProject(id) {
+            if (!confirm('¿Desea eliminar el registro?')) return;
+            try {
+                const res = await fetch(`${API_URL}/projects/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${jwtToken}` }
+                });
+                if (res.ok) fetchProjects();
+                else alert('No autorizado para eliminar.');
+            } catch (err) {
+                alert('Error al procesar la solicitud.');
+            }
+        }
+
+        // 3. Filtrado local UI
+        function initFilters() {
+            const btns = document.querySelectorAll('.filter-btn');
+            btns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    btns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const cat = btn.getAttribute('data-filter');
+                    
+                    const items = document.querySelectorAll('.portfolio-item');
+                    items.forEach(item => {
+                        if (cat === 'all' || item.getAttribute('data-category') === cat) {
+                            item.style.display = 'block';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        }
+
+        // 4. Seguridad: Sanitización XSS
+        function sanitize(str) {
+            return String(str || '').replace(/[&<>"']/g, m => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[m]));
+        }
+
+        // 5. Estado de Autenticación
+        function checkAuth() {
+            const authBox = document.getElementById('auth-box');
+            const crudBox = document.getElementById('crud-box');
+            if (jwtToken) {
+                authBox.classList.add('hidden');
+                crudBox.classList.remove('hidden');
+            } else {
+                authBox.classList.remove('hidden');
+                crudBox.classList.add('hidden');
+            }
+        }
+
+        function logout() {
+            jwtToken = '';
+            localStorage.removeItem('factum_token');
+            checkAuth();
+        }
+    </script>
 </body>
 </html>

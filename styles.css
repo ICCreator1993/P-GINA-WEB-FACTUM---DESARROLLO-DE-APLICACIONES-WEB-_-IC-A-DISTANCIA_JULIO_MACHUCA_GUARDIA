@@ -1,250 +1,119 @@
-document.addEventListener('DOMContentLoaded', () => {
-    
-    // Selectores del DOM
-    const links = document.querySelectorAll('.nav-link');
-    const pages = document.querySelectorAll('.page-view');
-    const header = document.getElementById('main-header');
-    const logoLink = document.querySelector('.logo');
-    const heroCta = document.getElementById('hero-cta');
-    const contactForm = document.getElementById('factumForm');
-    
-    // Selectores del CRUD y Modal
-    const crudTableBody = document.getElementById('crud-table-body');
-    const publicPortfolioGrid = document.getElementById('public-portfolio-grid');
-    const projectModal = document.getElementById('projectModal');
-    const crudForm = document.getElementById('crudForm');
-    const modalTitle = document.getElementById('modal-title');
-    
-    const btnOpenModal = document.getElementById('btn-open-modal');
-    const btnCloseModal = document.getElementById('btn-close-modal');
+:root {
+  --bg-dark: #121212;
+  --bg-card: #1e1e1e;
+  --gold-accent: #D4AF37;
+  --text-light: #f4f4f4;
+  --text-muted: #aaaaaa;
+  --border-color: #333333;
+}
 
-    // Datos por defecto (Seed inicial en LocalStorage)
-    const defaultProjects = [
-        { id: "1", title: "Casa Aura", category: "residential", year: "2025", img: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80" },
-        { id: "2", title: "Torre Prisma", category: "commercial", year: "2024", img: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=80" },
-        { id: "3", title: "Supervisión Vial Eje Norte", category: "infrastructure", year: "2026", img: "https://images.unsplash.com/photo-1545558014-868dfc4dd0b9?auto=format&fit=crop&w=600&q=80" },
-        { id: "4", title: "Departamentos Terra", category: "residential", year: "2025", img: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80" }
-    ];
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+}
 
-    if (!localStorage.getItem('factum_projects')) {
-        localStorage.setItem('factum_projects', JSON.stringify(defaultProjects));
-    }
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+  line-height: 1.6;
+}
 
-    // --- 1. SISTEMA DE NAVEGACIÓN ---
-    function navigateTo(targetId) {
-        links.forEach(link => {
-            if (link.getAttribute('data-target') === targetId) {
-                link.classList.add('active');
-            } else {
-                link.classList.remove('active');
-            }
-        });
+/* Navegación Responsive */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 2rem;
+  background-color: #0a0a0a;
+  border-bottom: 2px solid var(--gold-accent);
+}
 
-        pages.forEach(page => {
-            if (page.id === targetId) {
-                page.classList.add('active');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            } else {
-                page.classList.remove('active');
-            }
-        });
-    }
+.logo {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 900;
+}
 
-    links.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            navigateTo(link.getAttribute('data-target'));
-        });
-    });
+.logo span { color: var(--gold-accent); }
 
-    if(logoLink) logoLink.addEventListener('click', (e) => { e.preventDefault(); navigateTo('home'); });
-    if(heroCta) heroCta.addEventListener('click', () => navigateTo('portfolio'));
+.nav-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1rem;
+  margin-left: 1rem;
+  cursor: pointer;
+  padding: 0.5rem;
+}
 
-    window.addEventListener('scroll', () => {
-        const activePage = document.querySelector('.page-view.active');
-        if (activePage && activePage.id === 'home') {
-            if (window.scrollY > 50) header.classList.add('scrolled');
-            else header.classList.remove('scrolled');
-        }
-    });
+.nav-btn.active, .nav-btn:hover {
+  color: var(--gold-accent);
+  border-bottom: 2px solid var(--gold-accent);
+}
 
-    // --- 2. API MOCK SIMULADA (ASÍNCRONA) ---
-    const projectAPI = {
-        getAll: async () => {
-            return new Promise((resolve) => {
-                setTimeout(() => {
-                    resolve(JSON.parse(localStorage.getItem('factum_projects')));
-                }, 400); // Retraso simulando red de datos
-            });
-        },
-        save: async (project) => {
-            return new Promise((resolve) => {
-                setTimeout(() => {
-                    let projects = JSON.parse(localStorage.getItem('factum_projects'));
-                    if (project.id) {
-                        // Editar existente
-                        projects = projects.map(p => p.id === project.id ? project : p);
-                    } else {
-                        // Nuevo registro
-                        project.id = Date.now().toString();
-                        projects.push(project);
-                    }
-                    localStorage.setItem('factum_projects', JSON.stringify(projects));
-                    resolve({ success: true });
-                }, 400);
-            });
-        },
-        delete: async (id) => {
-            return new Promise((resolve) => {
-                setTimeout(() => {
-                    let projects = JSON.parse(localStorage.getItem('factum_projects'));
-                    projects = projects.filter(p => p.id !== id);
-                    localStorage.setItem('factum_projects', JSON.stringify(projects));
-                    resolve({ success: true });
-                }, 300);
-            });
-        }
-    };
+/* Layout y Contenedores */
+.container { padding: 2rem; max-width: 1200px; margin: 0 auto; }
+.view-section { display: none; }
+.view-section.active { display: block; }
 
-    // --- 3. LOGICA OPERATIVA DEL CRUD ---
-    async function loadData() {
-        const projects = await projectAPI.getAll();
-        renderAdminTable(projects);
-        renderPublicPortfolio(projects);
-    }
+.section-title {
+  font-family: 'Montserrat', sans-serif;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid var(--gold-accent);
+  padding-left: 0.8rem;
+}
 
-    function renderAdminTable(projects) {
-        crudTableBody.innerHTML = '';
-        projects.forEach(p => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td><img src="${p.img}" alt="${p.title}"></td>
-                <td><strong>${p.title}</strong></td>
-                <td><span class="category-tag">${p.category}</span></td>
-                <td>${p.year}</td>
-                <td>
-                    <button class="btn btn-edit" data-id="${p.id}">Editar</button>
-                    <button class="btn btn-danger" data-id="${p.id}">Eliminar</button>
-                </td>
-            `;
-            crudTableBody.appendChild(tr);
-        });
-        initTableButtons();
-    }
+/* Tarjetas y Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
 
-    function renderPublicPortfolio(projects) {
-        publicPortfolioGrid.innerHTML = '';
-        projects.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'portfolio-item';
-            div.setAttribute('data-category', item.category);
-            div.innerHTML = `
-                <img src="${item.img}" alt="${item.title}">
-                <div class="portfolio-overlay">
-                    <h3>${item.title}</h3>
-                    <p>${item.category} / ${item.year}</p>
-                </div>
-            `;
-            publicPortfolioGrid.appendChild(div);
-        });
-        applyFilterLogic();
-    }
+.card, .project-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 1.5rem;
+  border-radius: 6px;
+}
 
-    function initTableButtons() {
-        document.querySelectorAll('.btn-edit').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                const id = btn.getAttribute('data-id');
-                const projects = await projectAPI.getAll();
-                const project = projects.find(p => p.id === id);
-                
-                if (project) {
-                    document.getElementById('project-id').value = project.id;
-                    document.getElementById('project-title').value = project.title;
-                    document.getElementById('project-category').value = project.category;
-                    document.getElementById('project-year').value = project.year;
-                    document.getElementById('project-img').value = project.img;
-                    
-                    modalTitle.textContent = "Editar Proyecto";
-                    projectModal.classList.add('active');
-                }
-            });
-        });
+.project-card h3 { color: var(--gold-accent); margin-bottom: 0.5rem; }
 
-        document.querySelectorAll('.btn-danger').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                const id = btn.getAttribute('data-id');
-                if (confirm('¿Está seguro de eliminar este proyecto de los registros de FACTUM?')) {
-                    await projectAPI.delete(id);
-                    loadData();
-                }
-            });
-        });
-    }
+/* Botones e Inpust */
+.btn {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  font-weight: 600;
+}
+.btn-gold { background-color: var(--gold-accent); color: #000; }
+.btn-dark { background-color: #333; color: #fff; }
+.btn-danger { background-color: #d9534f; color: #fff; }
 
-    // Modal Events
-    btnOpenModal.addEventListener('click', () => {
-        crudForm.reset();
-        document.getElementById('project-id').value = '';
-        modalTitle.textContent = "Registrar Proyecto";
-        projectModal.classList.add('active');
-    });
+input, textarea {
+  width: 100%;
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  background-color: #2a2a2a;
+  border: 1px solid var(--border-color);
+  color: #fff;
+  border-radius: 4px;
+}
 
-    btnCloseModal.addEventListener('click', () => projectModal.classList.remove('active'));
+/* Tabla de Datos Administrativa (Responsiva) */
+.table-responsive { overflow-x: auto; margin-top: 1.5rem; }
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.data-table th, .data-table td {
+  padding: 0.8rem;
+  border-bottom: 1px solid var(--border-color);
+}
+.data-table th { background-color: #1a1a1a; color: var(--gold-accent); }
 
-    crudForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const project = {
-            id: document.getElementById('project-id').value || null,
-            title: document.getElementById('project-title').value,
-            category: document.getElementById('project-category').value,
-            year: document.getElementById('project-year').value,
-            img: document.getElementById('project-img').value
-        };
-
-        await projectAPI.save(project);
-        projectModal.classList.remove('active');
-        loadData();
-    });
-
-    // Filtros de Portafolio Público
-    function applyFilterLogic() {
-        const filterButtons = document.querySelectorAll('.filter-btn');
-        const portfolioItems = document.querySelectorAll('.portfolio-item');
-
-        filterButtons.forEach(btn => {
-            btn.replaceWith(btn.cloneNode(true)); // Limpiar listeners previos
-        });
-
-        const newFilterButtons = document.querySelectorAll('.filter-btn');
-        newFilterButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                newFilterButtons.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-
-                const filterValue = btn.getAttribute('data-filter');
-
-                portfolioItems.forEach(item => {
-                    if (filterValue === 'all' || item.getAttribute('data-category') === filterValue) {
-                        item.style.display = 'block';
-                        setTimeout(() => { item.style.opacity = '1'; item.style.transform = 'scale(1)'; }, 10);
-                    } else {
-                        item.style.opacity = '0';
-                        item.style.transform = 'scale(0.8)';
-                        setTimeout(() => { item.style.display = 'none'; }, 400);
-                    }
-                });
-            });
-        });
-    }
-
-    if (contactForm) {
-        contactForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-            alert('¡Solicitud registrada con éxito! El equipo técnico de FACTUM se pondrá en contacto contigo.');
-            contactForm.reset();
-        });
-    }
-
-    // Inicializar carga de datos
-    loadData();
-});
+.hidden { display: none !important; }
